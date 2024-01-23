@@ -1,3 +1,10 @@
 ---
-dependencies:
-  - role: php
+dependencies: []
+
+galaxy_info:
+  author: "Punkt.de"
+  license: "MIT"
+  description: "Roadrunner role for Linux"
+  role_name: "proserver_roadrunner"
+  namespace: "punktde"
+  min_ansible_version: "2.15"
