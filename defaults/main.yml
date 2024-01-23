@@ -1,0 +1,13 @@
+---
+roadrunner:
+  port:
+    rpc: 6001
+    http: 8080
+    metrics: 2112
+  version: 2.12.3
+  arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+  prefix:
+    sudoers: "{{ '/usr/local/etc/sudoers.d/' if ansible_system == 'FreeBSD' else '/etc/sudoers.d' }}"
+    current_release: /var/www/current
+    config: "{{ '/var/opt/roadrunner/config' if ansible_system == 'FreeBSD' else '/etc/roadrunner' }}"
+    bin: "{{ '/var/opt/roadrunner/bin' if ansible_system == 'FreeBSD' else '/usr/bin' }}"

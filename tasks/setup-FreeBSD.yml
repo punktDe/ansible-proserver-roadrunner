@@ -1,0 +1,26 @@
+---
+- name: Create the roadrunner folders
+  ansible.builtin.file:
+    state: directory
+    name: "{{ item }}"
+    owner: root
+    mode: "0755"
+  loop: "{{ roadrunner.prefix.values() }}"
+
+- name: Template supervisord configuration for Roadrunner
+  ansible.builtin.template:
+    src: supervisord.d/roadrunner.conf
+    dest: "{{ supervisord.prefix.config }}/roadrunner.conf"
+    owner: root
+    mode: "0644"
+  notify: Restart Supervisord
+
+- name: Allow the user proserver to control the roadrunner service (FreeBSD)
+  ansible.builtin.copy:
+    owner: root
+    mode: "0644"
+    content: |
+        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl restart roadrunner
+        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl stop roadrunner
+        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl start roadrunner
+    dest: /usr/local/etc/sudoers.d/proserver-restart-roadrunner

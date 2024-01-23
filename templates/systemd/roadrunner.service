@@ -1,0 +1,17 @@
+[Unit]
+Description=Roadrunner Service
+
+[Service]
+ExecStart={{ roadrunner.prefix.bin }}/rr -w {{ roadrunner.prefix.current_release }} -c {{ roadrunner.prefix.config }}/rr.yaml -d serve -p
+ExecStop={{ roadrunner.prefix.bin }}/rr  -w {{ roadrunner.prefix.current_release }} -c {{ roadrunner.prefix.config }}/rr.yaml -d stop && sleep 30
+Type=simple
+StandardError=journal
+StandardOutput=journal
+Restart=always
+SyslogIdentifier=roadrunner
+StandardInput=null
+User=proserver
+WorkingDirectory={{ roadrunner.prefix.current_release }}
+
+[Install]
+WantedBy=multi-user.target

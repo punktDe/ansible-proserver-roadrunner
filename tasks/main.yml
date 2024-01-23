@@ -1,0 +1,8 @@
+---
+- ansible_builtin.include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- ansible_builtin.include_tasks: setup-FreeBSD.yml
+  when: ansible_system == 'FreeBSD'
+
+- ansible_builtin.include_tasks: config.yml
