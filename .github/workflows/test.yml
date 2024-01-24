@@ -5,6 +5,9 @@ on:
   push:
   workflow_dispatch:
 
+env:
+  ANSIBLE_ROLES_PATH: roles
+
 jobs:
   lint:
     runs-on: ubuntu-latest

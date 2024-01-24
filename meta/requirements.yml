@@ -1,0 +1,4 @@
+---
+roles:
+  - name: php
+    src: https://github.com/punktDe/ansible-proserver-php
