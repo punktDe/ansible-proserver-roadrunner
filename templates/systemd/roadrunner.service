@@ -1,6 +1,7 @@
 [Unit]
 Description=Roadrunner Service
 Requires=php{{ php_version }}-fpm.service
+ConditionPathExists={{ roadrunner.prefix.current_release }}
 
 [Service]
 ExecStart={{ roadrunner.prefix.bin }}/rr -w {{ roadrunner.prefix.current_release }} -c {{ roadrunner.prefix.config }}/rr.yaml -d serve -p

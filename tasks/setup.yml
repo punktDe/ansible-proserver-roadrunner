@@ -6,3 +6,7 @@
     owner: "{{ 'proserver' if 'www' in item else 'root' }}"
     mode: "0755"
   loop: "{{ roadrunner.prefix.values() }}"
+
+- name: debug
+  ansible.builtin.command:
+    cmd: "ls -lart {{ roadrunner.prefix.current_release }}"
