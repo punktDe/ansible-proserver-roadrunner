@@ -1,9 +1,7 @@
 ---
-- name: Download and install the roadrunner v{{ roadrunner.version }} freebsd package
-  ansible.builtin.unarchive:
-    remote_src: yes
-    src: https://github.com/roadrunner-server/roadrunner/releases/download/v{{ roadrunner.version }}/roadrunner-{{ roadrunner.version }}-freebsd-amd64.tar.gz
-    dest: "{{ roadrunner.prefix.bin }}"
+- name: Download and install the roadrunner v{{ roadrunner.version }} deb package
+  ansible.builtin.apt:
+    deb: https://github.com/roadrunner-server/roadrunner/releases/download/v{{ roadrunner.version }}/roadrunner-{{ roadrunner.version }}-linux-amd64.deb
 
 - name: Install the roadrunner systemd service
   notify: Restart roadrunner

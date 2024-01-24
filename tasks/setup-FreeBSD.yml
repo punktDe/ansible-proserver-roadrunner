@@ -1,4 +1,10 @@
 ---
+- name: Download and install the roadrunner v{{ roadrunner.version }} FreeBSD package
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: https://github.com/roadrunner-server/roadrunner/releases/download/v{{ roadrunner.version }}/roadrunner-{{ roadrunner.version }}-freebsd-amd64.tar.gz
+    dest: "{{ roadrunner.prefix.bin }}"
+
 - name: Template supervisord configuration for Roadrunner
   ansible.builtin.template:
     src: supervisord.d/roadrunner.conf
