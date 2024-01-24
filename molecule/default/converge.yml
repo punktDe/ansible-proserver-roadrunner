@@ -1,6 +1,10 @@
 ---
 - name: Converge
   hosts: all
+  vars:
+    system:
+      features:
+        proserver_user: yes
   tasks:
     - name: "Include ansible-proserver-roadrunner"
       ansible.builtin.include_role:

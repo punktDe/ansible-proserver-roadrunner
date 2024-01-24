@@ -3,6 +3,6 @@
   ansible.builtin.file:
     state: directory
     name: "{{ item }}"
-    owner: root
+    owner: "{{ 'proserver' if 'www' in item else 'root' }}"
     mode: "0755"
   loop: "{{ roadrunner.prefix.values() }}"

@@ -14,3 +14,5 @@ collections:
 roles:
   - name: php
     src: https://github.com/punktDe/ansible-proserver-php
+  - name: system
+    src: https://github.com/punktDe/ansible-proserver-system
