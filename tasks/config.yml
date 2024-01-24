@@ -12,3 +12,24 @@
     name: roadrunner
     state: started
     enabled: yes
+
+- name: Handle RR restart (debug)
+  block:
+  - name: Reload changes in configuration and restart docker service
+    register: roadrunner_restart_result
+    ansible.builtin.service:
+      name: roadrunner
+      state: restarted
+
+  - name: Print to console
+    ansible.builtin.debug:
+      msg: "{{ roadrunner_restart_result.stdout }}"
+  rescue:
+    - name: get errors
+      ansible.builtin.shell: 
+        cmd: journalctl -xeu roadrunner.service
+      register: err_msg
+
+    - name: Print error message to console
+      ansible.builtin.debug:
+        msg: "{{ err_msg.stdout }}"
