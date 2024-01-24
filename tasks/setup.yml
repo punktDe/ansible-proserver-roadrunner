@@ -1,0 +1,8 @@
+---
+- name: Create the roadrunner folders
+  ansible.builtin.file:
+    state: directory
+    name: "{{ item }}"
+    owner: root
+    mode: "0755"
+  loop: "{{ roadrunner.prefix.values() }}"

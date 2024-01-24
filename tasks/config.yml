@@ -1,18 +1,14 @@
 ---
-- name: Make sure that the roadrunner config folder exists
-  file:
-    dest: "{{ roadrunner.prefix.config }}"
-    state: directory
-
 - name: Template the roadrunner config
   notify: Restart roadrunner
-  template:
+  ansible.builtin.template:
     src: roadrunner/rr.yaml
     dest: "{{ roadrunner.prefix.config }}/rr.yaml"
-    owner: proserver
+    owner: root
+    mode: "0644"
 
 - name: Start and enable the roadrunner service
-  service:
+  ansible.builtin.service:
     name: roadrunner
     state: started
     enabled: yes

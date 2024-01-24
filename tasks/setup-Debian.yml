@@ -1,7 +1,9 @@
 ---
-- name: Download and install the roadrunner v{{ roadrunner.version }} deb package
-  ansible.builtin.apt:
-    deb: https://github.com/roadrunner-server/roadrunner/releases/download/v{{ roadrunner.version }}/roadrunner-{{ roadrunner.version }}-linux-amd64.deb
+- name: Download and install the roadrunner v{{ roadrunner.version }} freebsd package
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: https://github.com/roadrunner-server/roadrunner/releases/download/v{{ roadrunner.version }}/roadrunner-{{ roadrunner.version }}-freebsd-amd64.tar.gz
+    dest: "{{ roadrunner.prefix.bin }}"
 
 - name: Install the roadrunner systemd service
   notify: Restart roadrunner
@@ -12,7 +14,9 @@
     dest: /etc/systemd/system/roadrunner.service
 
 - name: Allow the user proserver to control the roadrunner service (Linux)
-  ansilble.builtin.copy:
+  ansible.builtin.copy:
+    owner: root
+    mode: "0644"
     content: |
         proserver ALL = NOPASSWD: /bin/systemctl start roadrunner
         proserver ALL = NOPASSWD: /bin/systemctl status roadrunner
