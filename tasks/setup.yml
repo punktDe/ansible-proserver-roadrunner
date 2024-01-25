@@ -22,5 +22,7 @@
   ansible.builtin.file:
     state: directory
     name: "{{ roadrunner.prefix.config }}/{{ item.key }}"
-    owner: "root"
+    owner: "proserver"
+    group: "proserver"
+    mode: "0755"
   loop: "{{ roadrunner.config | dict2items }}"

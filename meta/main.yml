@@ -3,6 +3,7 @@ dependencies:
   - role: system
   - role: php
   - role: supervisord
+    when: ansible_system == "FreeBSD"
 
 galaxy_info:
   author: "Punkt.de"
