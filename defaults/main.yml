@@ -1,13 +1,43 @@
 ---
 roadrunner:
-  port:
-    rpc: 6001
-    http: 8080
-    metrics: 2112
-  version: 2.12.3
+  config: {}
+  defaults:
+    working_directory: "{{ vars.roadrunner.prefix.current_release }}"
+    script_name: "app.php"
+    version: '3.0'
+    rpc:
+      listen: tcp://127.0.0.1:6001
+    server:
+      command: "php {{ vars.roadrunner.defaults.script_name }}"
+      relay: pipes
+    http:
+      address: 0.0.0.0:8080
+      middleware: [ "gzip", "static" ]
+      static:
+        dir: "public"
+        forbid: [ ".php", ".htaccess" ]
+      pool:
+        num_workers: 4
+        supervisor:
+          max_worker_memory: 100
+    jobs:
+      consume: [ ]
+      pool:
+        num_workers: 2
+        supervisor:
+          max_worker_memory: 100
+    kv:
+      local:
+        driver: memory
+        config:
+          interval: 60
+    metrics:
+      address: localhost:2112
+  version: 2023.3.9
   arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
   prefix:
     sudoers: "{{ '/usr/local/etc/sudoers.d/' if ansible_system == 'FreeBSD' else '/etc/sudoers.d' }}"
     current_release: /var/www/current
     config: "{{ '/var/opt/roadrunner/config' if ansible_system == 'FreeBSD' else '/etc/roadrunner' }}"
     bin: "{{ '/var/opt/roadrunner/bin' if ansible_system == 'FreeBSD' else '/usr/bin' }}"
+    log: "/var/log/roadrunner"

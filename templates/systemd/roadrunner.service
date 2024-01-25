@@ -1,11 +1,10 @@
 [Unit]
 Description=Roadrunner Service
 Requires=php{{ php_version }}-fpm.service
-ConditionPathExists={{ roadrunner.prefix.current_release }}
 
 [Service]
-ExecStart={{ roadrunner.prefix.bin }}/rr -w {{ roadrunner.prefix.current_release }} -c {{ roadrunner.prefix.config }}/rr.yaml -d serve -p
-ExecStop={{ roadrunner.prefix.bin }}/rr  -w {{ roadrunner.prefix.current_release }} -c {{ roadrunner.prefix.config }}/rr.yaml -d stop && sleep 30
+ExecStart={{ roadrunner.prefix.bin }}/rr -w {{ roadrunner_config.value.working_directory | default(roadrunner.prefix.current_release) }} -c {{ roadrunner.prefix.config }}/{{ roadrunner_config.key }}/rr.yaml -d serve -p
+ExecStop={{ roadrunner.prefix.bin }}/rr -w {{ roadrunner_config.value.working_directory | default(roadrunner.prefix.current_release) }} -c {{ roadrunner.prefix.config }}/{{ roadrunner_config.key }}/rr.yaml -d stop && sleep 30
 Type=simple
 StandardError=journal
 StandardOutput=journal
@@ -13,7 +12,7 @@ Restart=always
 SyslogIdentifier=roadrunner
 StandardInput=null
 User=proserver
-WorkingDirectory={{ roadrunner.prefix.current_release }}
+WorkingDirectory={{ roadrunner_config.value.working_directory | default(roadrunner.prefix.current_release) }}
 
 [Install]
 WantedBy=multi-user.target

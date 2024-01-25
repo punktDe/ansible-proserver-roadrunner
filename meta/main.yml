@@ -2,6 +2,7 @@
 dependencies:
   - role: system
   - role: php
+  - role: supervisord
 
 galaxy_info:
   author: "Punkt.de"

@@ -1,5 +1,0 @@
----
-- name: Restart roadrunner
-  ansible.builtin.service:
-    name: roadrunner
-    state: restarted

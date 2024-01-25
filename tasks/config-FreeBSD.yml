@@ -1,0 +1,36 @@
+---
+- name: Template the roadrunner config
+  register: roadrunner_template_config_result
+  loop_control:
+    label: "{{ roadrunner_config.key }}"
+  ansible.builtin.template:
+    src: roadrunner/rr.yaml.j2
+    dest: "{{ roadrunner.prefix.config }}/{{ roadrunner_config.key }}/rr.yaml"
+    owner: root
+    mode: "0644"
+
+- name: Check if the PHP script exists ({{ roadrunner_config.key }})
+  register: roadrunner_php_script_exists
+  ansible.builtin.stat:
+    path: "{{ roadrunner.prefix.current_release }}/{{ roadrunner.config[roadrunner_config.key].script_name | default(roadrunner.defaults.script_name) }}"
+
+- name: Template supervisord configuration for Roadrunner
+  register: roadrunner_template_service_config_result
+  ansible.builtin.template:
+    src: supervisord.d/roadrunner.conf
+    dest: "{{ supervisord.prefix.config }}/roadrunner-{{ roadrunner_config.key }}.conf"
+    owner: root
+    mode: "0644"
+
+- name: Enable and start the roadrunner-{{ roadrunner_config.key }} service
+  when: roadrunner_php_script_exists.stat.exists
+  register: roadrunner_service_supervisord_started
+  community.general.supervisorctl:
+    name: "roadrunner-{{ roadrunner_config.key }}"
+    state: present
+
+- name: Restart the roadrunner-{{ roadrunner_config.key }} service
+  when: roadrunner_php_script_exists.stat.exists and not roadrunner_service_supervisord_started.changed and (roadrunner_template_service_config_result.changed or roadrunner_template_config_result.changed or (roadrunner_version is defined and roadrunner_version.stdout != roadrunner.version))
+  community.general.supervisorctl:
+    name: "roadrunner-{{ roadrunner_config.key }}"
+    state: restarted

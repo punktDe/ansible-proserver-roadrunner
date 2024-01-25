@@ -1,12 +1,26 @@
 ---
+- name: Create the /var/opt folder (FreeBSD)
+  when: ansible_system == "FreeBSD"
+  ansible.builtin.file:
+    state: directory
+    name: "/var/opt"
+    owner: root
+    mode: "0755"
+
 - name: Create the roadrunner folders
   ansible.builtin.file:
     state: directory
     name: "{{ item }}"
-    owner: "{{ 'proserver' if 'www' in item else 'root' }}"
+    owner: proserver
+    group: proserver
     mode: "0755"
-  loop: "{{ roadrunner.prefix.values() }}"
+  loop:
+    - "{{ roadrunner.prefix.bin }}"
+    - "{{ roadrunner.prefix.config }}"
 
-- name: debug
-  ansible.builtin.command:
-    cmd: "ls -lart {{ roadrunner.prefix.current_release }}"
+- name: Create the roadrunner config folders
+  ansible.builtin.file:
+    state: directory
+    name: "{{ roadrunner.prefix.config }}/{{ item.key }}"
+    owner: "root"
+  loop: "{{ roadrunner.config | dict2items }}"

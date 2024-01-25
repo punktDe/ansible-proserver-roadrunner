@@ -1,0 +1,9 @@
+[Unit]
+Description=Monitor the release directory for roadrunner-{{ roadrunner_config.key }}
+
+[Path]
+PathExists={{ roadrunner.prefix.current_release }}/{{ roadrunner.config[roadrunner_config.key].script_name | default(roadrunner.defaults.script_name) }}
+Unit=roadrunner-{{ roadrunner_config.key }}.service
+
+[Install]
+WantedBy=multi-user.target
