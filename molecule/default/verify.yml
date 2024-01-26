@@ -5,6 +5,47 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: Example assertion
-      ansible.builtin.assert:
-        that: true
+    - name: Create the current_release folder
+      ansible.builtin.file:
+        dest: "{{ item }}"
+        state: "directory"
+        owner: proserver
+        mode: "0755"
+      loop: 
+        - "{{ roadrunner.prefix.current_release }}"
+        - "{{ roadrunner.prefix.current_release }}/public"
+
+    - name: Copy the example PHP script
+      ansible.builtin.copy:
+        src: "molecule/files/app.php"
+        dest: "{{ roadrunner.prefix.current_release }}/app.php"
+
+    - name: Initialize the composer project
+      community.general.composer:
+        command: create-project
+        arguments: "punktde/roadrunner-test {{ roadrunner.prefix.current_release }} ~1.0"
+        working_dir: "{{ roadrunner.prefix.current_release }}"
+        prefer_dist: true
+
+    - name: Install PHP dependencies
+      community.general.composer:
+        command: require
+        arguments: "{{ item }}"
+        working_dir: "{{ roadrunner.prefix.current_release }}"
+      loop:
+        - "nyholm/psr7"
+        - "spiral/roadrunner"
+        - "spiral/roadrunner-http"
+
+    - name: Enable and start the roadrunner-main service
+      community.general.supervisorctl:
+        name: "roadrunner-main"
+        state: "present"
+        stop_before_removing: yes
+
+    - name: Check that a page returns successfully but fail if the word AWESOME is not in the page contents
+      ansible.builtin.uri:
+        url: http://{{ roadrunner.defaults.http.address }}
+        return_content: true
+      register: this
+      failed_when: this is failed or "'Hello world' not in this.content"

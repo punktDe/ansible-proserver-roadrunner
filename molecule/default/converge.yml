@@ -4,6 +4,11 @@
   environment:
     GITHUB_ACTIONS: "maybe"
   vars:
+    php:
+      install_composer: yes
+    roadrunner:
+      config:
+        main:
     system:
       features:
         proserver_user: yes
