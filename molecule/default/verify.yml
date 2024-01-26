@@ -1,10 +1,69 @@
 ---
-# This is an example playbook to execute Ansible tests.
-
 - name: Verify
   hosts: all
   gather_facts: false
   tasks:
-    - name: Example assertion
-      ansible.builtin.assert:
-        that: true
+    - name: Create the current_release folder
+      ansible.builtin.file:
+        dest: "{{ item }}"
+        state: "directory"
+        owner: proserver
+        mode: "0755"
+      loop: 
+        - "/var/www/current"
+
+    - name: Initialize the composer project
+      community.general.composer:
+        command: init
+        arguments: >-
+          --name punktde/roadrunner-test
+          --description=
+          --type=project
+          --author=
+          --homepage=
+          --no-interaction
+        working_dir: "/var/www/current"
+
+    - name: Install PHP dependencies
+      community.general.composer:
+        command: require
+        arguments: "{{ item }}"
+        working_dir: "/var/www/current"
+      loop:
+        - "nyholm/psr7"
+        - "spiral/roadrunner"
+        - "spiral/roadrunner-http"
+
+    - name: Create the current_release public folder
+      ansible.builtin.file:
+        dest: "{{ item }}"
+        state: "directory"
+        owner: proserver
+        mode: "0755"
+      loop: 
+        - "/var/www/current/public"
+
+    - name: Copy the example PHP script
+      ansible.builtin.copy:
+        owner: proserver
+        mode: "0644"
+        src: "app.php"
+        dest: "/var/www/current/app.php"
+
+    - name: Start the roadrunner-main service
+      ansible.builtin.service:
+        name: "roadrunner@main"
+        state: "started"
+        enabled: yes
+
+    - name: Check that a page returns successfully but fail if the word 'Hello world' is not in the page contents
+      ansible.builtin.uri:
+        url: http://localhost:8080
+        return_content: true
+      register: this
+      retries: 3
+      delay: 3
+      until: not this.failed
+      failed_when: 
+        - this is failed
+        - "'Hello world!' not in this.content"
