@@ -14,11 +14,15 @@
 
     - name: Initialize the composer project
       community.general.composer:
-        command: create-project
-        arguments: "punktde/roadrunner-test /var/www/current ~1.0"
+        command: init
+        arguments: >-
+          --name punktde/roadrunner-test
+          --description=
+          --type=project
+          --author=
+          --homepage=
+          --no-interaction
         working_dir: "/var/www/current"
-        prefer_dist: true
-
 
     - name: Install PHP dependencies
       community.general.composer:
@@ -30,7 +34,7 @@
         - "spiral/roadrunner"
         - "spiral/roadrunner-http"
 
-    - name: Create the current_release folder
+    - name: Create the current_release public folder
       ansible.builtin.file:
         dest: "{{ item }}"
         state: "directory"
@@ -52,7 +56,7 @@
         state: "present"
         stop_before_removing: yes
 
-    - name: Check that a page returns successfully but fail if the word AWESOME is not in the page contents
+    - name: Check that a page returns successfully but fail if the word "Hello world" is not in the page contents
       ansible.builtin.uri:
         url: http://localhost:8080
         return_content: true
