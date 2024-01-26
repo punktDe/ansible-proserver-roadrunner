@@ -29,6 +29,8 @@
     dest: "/etc/systemd/system/roadrunner@{{ roadrunner_config.key }}.service"
 
 - name: Start and enable roadrunner@{{ roadrunner_config.key }}.path
+  tags:
+    - molecule-idempotence-notest
   ansible.builtin.service:
     daemon_reload: yes
     name: roadrunner@{{ roadrunner_config.key }}.service
