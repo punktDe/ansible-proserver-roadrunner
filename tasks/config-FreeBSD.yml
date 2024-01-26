@@ -1,6 +1,6 @@
 ---
-- name: Template the roadrunner config
-  register: roadrunner_template_config_result
+- name: Template the roadrunner config ({{ roadrunner_config.key }})
+  register: roadrunner_template_config_result 
   loop_control:
     label: "{{ roadrunner_config.key }}"
   ansible.builtin.template:
@@ -22,12 +22,12 @@
     owner: root
     mode: "0644"
 
-- name: Enable and start the roadrunner-{{ roadrunner_config.key }} service
-  when: roadrunner_php_script_exists.stat.exists
+- name: Enable and start the roadrunner-{{ roadrunner_config.key }} service if PHP script exists
   register: roadrunner_service_supervisord_started
   community.general.supervisorctl:
     name: "roadrunner-{{ roadrunner_config.key }}"
-    state: present
+    state: "{{ 'present' if roadrunner_php_script_exists.stat.exists else 'absent' }}"
+    stop_before_removing: yes
 
 - name: Restart the roadrunner-{{ roadrunner_config.key }} service
   when: roadrunner_php_script_exists.stat.exists and not roadrunner_service_supervisord_started.changed and (roadrunner_template_service_config_result.changed or roadrunner_template_config_result.changed or (roadrunner_version is defined and roadrunner_version.stdout != roadrunner.version))
