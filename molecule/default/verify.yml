@@ -1,5 +1,3 @@
----
-# This is an example playbook to execute Ansible tests.
 
 - name: Verify
   hosts: all
@@ -13,14 +11,6 @@
         mode: "0755"
       loop: 
         - "/var/www/current"
-        - "/var/www/current/public"
-
-    - name: Copy the example PHP script
-      ansible.builtin.copy:
-        owner: proserver
-        mode: "0644"
-        src: "app.php"
-        dest: "/var/www/current/app.php"
 
     - name: Initialize the composer project
       community.general.composer:
@@ -28,6 +18,7 @@
         arguments: "punktde/roadrunner-test /var/www/current ~1.0"
         working_dir: "/var/www/current"
         prefer_dist: true
+
 
     - name: Install PHP dependencies
       community.general.composer:
@@ -38,6 +29,22 @@
         - "nyholm/psr7"
         - "spiral/roadrunner"
         - "spiral/roadrunner-http"
+
+    - name: Create the current_release folder
+      ansible.builtin.file:
+        dest: "{{ item }}"
+        state: "directory"
+        owner: proserver
+        mode: "0755"
+      loop: 
+        - "/var/www/current/public"
+
+    - name: Copy the example PHP script
+      ansible.builtin.copy:
+        owner: proserver
+        mode: "0644"
+        src: "app.php"
+        dest: "/var/www/current/app.php"
 
     - name: Enable and start the roadrunner-main service
       community.general.supervisorctl:
