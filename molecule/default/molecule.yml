@@ -1,7 +1,7 @@
 ---
 dependency:
   name: shell
-  command: ansible-galaxy install -r meta/requirements.yml -p roles/ --force
+  command: ansible-galaxy install -r meta/.requirements.yml -p roles/ --force
 driver:
   name: docker
 platforms:
