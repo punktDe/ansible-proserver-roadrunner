@@ -17,7 +17,9 @@
 
     - name: Copy the example PHP script
       ansible.builtin.copy:
-        src: "molecule/files/app.php"
+        owner: proserver
+        mode: "0644"
+        src: "app.php"
         dest: "/var/www/current/app.php"
 
     - name: Initialize the composer project
