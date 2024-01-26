@@ -11,7 +11,7 @@ roadrunner:
       command: "php {{ vars.roadrunner.defaults.script_name }}"
       relay: pipes
     http:
-      address: 0.0.0.0:8080
+      address: 127.0.0.1:8080
       middleware: [ "gzip", "static" ]
       static:
         dir: "public"
