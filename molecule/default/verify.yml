@@ -1,4 +1,4 @@
-
+---
 - name: Verify
   hosts: all
   gather_facts: false
@@ -50,13 +50,13 @@
         src: "app.php"
         dest: "/var/www/current/app.php"
 
-    - name: Enable and start the roadrunner-main service
-      community.general.supervisorctl:
-        name: "roadrunner-main"
-        state: "present"
-        stop_before_removing: yes
+    - name: Start the roadrunner-main service
+      ansible.builtin.service:
+        name: "roadrunner@main"
+        state: "started"
+        enabled: yes
 
-    - name: Check that a page returns successfully but fail if the word "Hello world" is not in the page contents
+    - name: Check that a page returns successfully but fail if the word 'Hello world' is not in the page contents
       ansible.builtin.uri:
         url: http://localhost:8080
         return_content: true
