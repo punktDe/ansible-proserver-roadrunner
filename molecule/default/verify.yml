@@ -12,26 +12,26 @@
         owner: proserver
         mode: "0755"
       loop: 
-        - "{{ roadrunner.prefix.current_release }}"
-        - "{{ roadrunner.prefix.current_release }}/public"
+        - "/var/www/current"
+        - "/var/www/current/public"
 
     - name: Copy the example PHP script
       ansible.builtin.copy:
         src: "molecule/files/app.php"
-        dest: "{{ roadrunner.prefix.current_release }}/app.php"
+        dest: "/var/www/current/app.php"
 
     - name: Initialize the composer project
       community.general.composer:
         command: create-project
-        arguments: "punktde/roadrunner-test {{ roadrunner.prefix.current_release }} ~1.0"
-        working_dir: "{{ roadrunner.prefix.current_release }}"
+        arguments: "punktde/roadrunner-test /var/www/current ~1.0"
+        working_dir: "/var/www/current"
         prefer_dist: true
 
     - name: Install PHP dependencies
       community.general.composer:
         command: require
         arguments: "{{ item }}"
-        working_dir: "{{ roadrunner.prefix.current_release }}"
+        working_dir: "/var/www/current"
       loop:
         - "nyholm/psr7"
         - "spiral/roadrunner"
@@ -45,7 +45,7 @@
 
     - name: Check that a page returns successfully but fail if the word AWESOME is not in the page contents
       ansible.builtin.uri:
-        url: http://{{ roadrunner.defaults.http.address }}
+        url: http://localhost:8080
         return_content: true
       register: this
       failed_when: this is failed or "'Hello world' not in this.content"
