@@ -1,6 +1,7 @@
 ---
 dependencies:
   - role: system
+    when: (lookup('env','GITHUB_ACTIONS') | length) != 0
   - role: php
   - role: supervisord
     when: ansible_system == "FreeBSD"
