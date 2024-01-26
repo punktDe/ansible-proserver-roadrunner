@@ -1,0 +1,20 @@
+---
+collections:
+  - name: https://github.com/ansible-collections/community.general
+    type: git
+  - name: https://github.com/ansible-collections/community.crypto
+    type: git
+  - name: https://github.com/ansible-collections/ansible.posix
+    type: git
+  - name: https://github.com/ansible-collections/community.mysql
+    type: git
+  - name: https://github.com/ansible-collections/community.docker
+    type: git
+
+roles:
+  - name: php
+    src: https://github.com/punktDe/ansible-proserver-php
+  - name: system
+    src: https://github.com/punktDe/ansible-proserver-system
+  - name: supervisord
+    src: https://github.com/punktDe/ansible-proserver-supervisord

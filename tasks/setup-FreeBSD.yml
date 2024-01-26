@@ -1,26 +1,55 @@
 ---
-- name: Create the roadrunner folders
+- name: Create the roadrunner log folder
   ansible.builtin.file:
     state: directory
     name: "{{ item }}"
-    owner: root
+    owner: proserver
+    group: proserver
     mode: "0755"
-  loop: "{{ roadrunner.prefix.values() }}"
+  loop:
+    - "{{ roadrunner.prefix.log }}"
 
-- name: Template supervisord configuration for Roadrunner
-  ansible.builtin.template:
-    src: supervisord.d/roadrunner.conf
-    dest: "{{ supervisord.prefix.config }}/roadrunner.conf"
-    owner: root
-    mode: "0644"
-  notify: Restart Supervisord
+- name: Check if the roadrunner exists
+  register: roadrunner_bin_exists
+  changed_when: not roadrunner_bin_exists.stat.exists
+  ansible.builtin.stat:
+    path: "{{ roadrunner.prefix.bin }}/rr"
+
+- name: Get current roadrunner version
+  changed_when: roadrunner_version.stdout != roadrunner.version
+  when: roadrunner_bin_exists.stat.exists
+  register: roadrunner_version
+  ansible.builtin.shell:
+    cmd: "{{ roadrunner.prefix.bin }}/rr -v | awk -F ' ' '{print $3}'"
+
+- name: Handle roadrunner install/update
+  when: not roadrunner_bin_exists or (roadrunner_version is defined and roadrunner_version.stdout != roadrunner.version)
+  block:
+    - name: Download the roadrunner v{{ roadrunner.version }} FreeBSD package
+      ansible.builtin.get_url:
+        url: "https://github.com/roadrunner-server/roadrunner/releases/download/v{{ roadrunner.version }}/roadrunner-{{ roadrunner.version }}-freebsd-amd64.tar.gz"
+        dest: "{{ roadrunner.prefix.bin }}/roadrunner-{{ roadrunner.version }}.tar.gz"
+        owner: proserver
+        group: proserver
+        mode: "0644"
+
+    - name: Unarchive roadrunner
+      ignore_errors: "{{ ansible_check_mode }}"
+      ansible.builtin.unarchive:
+        src: "{{ roadrunner.prefix.bin }}/roadrunner-{{ roadrunner.version }}.tar.gz"
+        owner: proserver
+        group: proserver
+        dest: "{{ roadrunner.prefix.bin }}"
+        extra_opts:
+          - --strip-components=1
+        remote_src: yes
 
 - name: Allow the user proserver to control the roadrunner service (FreeBSD)
   ansible.builtin.copy:
     owner: root
     mode: "0644"
     content: |
-        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl restart roadrunner
-        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl stop roadrunner
-        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl start roadrunner
+        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl restart roadrunner-*
+        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl stop roadrunner-*
+        proserver ALL = NOPASSWD: /usr/local/bin/supervisorctl start roadrunner-*
     dest: /usr/local/etc/sudoers.d/proserver-restart-roadrunner

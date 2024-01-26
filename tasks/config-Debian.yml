@@ -1,0 +1,44 @@
+---
+- name: Template the roadrunner config for {{ roadrunner_config.key }}
+  register: roadrunner_template_config_result
+  loop_control:
+    label: "{{ roadrunner_config.key }}"
+  ansible.builtin.template:
+    src: roadrunner/rr.yaml.j2
+    dest: "{{ roadrunner.prefix.config }}/{{ roadrunner_config.key }}/rr.yaml"
+    owner: root
+    mode: "0644"
+
+- name: Install the roadrunner systemd path service for {{ roadrunner_config.key }}
+  loop_control:
+    label: "{{ roadrunner_config.key }}"
+  ansible.builtin.template:
+    owner: root
+    mode: "0644"
+    src: systemd/roadrunner.path
+    dest: "/etc/systemd/system/roadrunner@{{ roadrunner_config.key }}.path"
+
+- name: Install the roadrunner systemd service for {{ roadrunner_config.key }}
+  loop_control:
+    label: "{{ roadrunner_config.key }}"
+  register: roadrunner_systemd_service_changed
+  ansible.builtin.template:
+    owner: root
+    mode: "0644"
+    src: systemd/roadrunner.service
+    dest: "/etc/systemd/system/roadrunner@{{ roadrunner_config.key }}.service"
+
+- name: Start and enable roadrunner@{{ roadrunner_config.key }}.path
+  ansible.builtin.service:
+    daemon_reload: yes
+    name: roadrunner@{{ roadrunner_config.key }}.service
+    enabled: yes
+    state: started
+
+- name: Restart roadrunner@{{ roadrunner_config.key }}.service
+  when:
+    - roadrunner_template_config_result.changed or roadrunner_install_binary_result.changed
+  ansible.builtin.service:
+    name: roadrunner@{{ roadrunner_config.key }}.service
+    daemon_reload: yes
+    state: restarted

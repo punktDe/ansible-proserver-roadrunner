@@ -1,0 +1,1 @@
+{{ roadrunner.defaults | ansible.builtin.combine(roadrunner_config.value, recursive=true) | ansible.utils.remove_keys(target=['working_directory', 'script_name']) | to_nice_yaml(indent=2) }}

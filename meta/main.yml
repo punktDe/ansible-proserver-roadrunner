@@ -1,3 +1,15 @@
 ---
 dependencies:
+  - role: system
+    when: (lookup('env','GITHUB_ACTIONS') | length) != 0
   - role: php
+  - role: supervisord
+    when: ansible_system == "FreeBSD"
+
+galaxy_info:
+  author: "Punkt.de"
+  license: "MIT"
+  description: "Roadrunner role for Proserver"
+  role_name: "proserver_roadrunner"
+  namespace: "punktde"
+  min_ansible_version: "2.15"

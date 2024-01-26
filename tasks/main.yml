@@ -1,8 +1,27 @@
 ---
-- ansible_builtin.include_tasks: setup-Debian.yml
+- name: Configure the system for Roadrunner
+  ansible.builtin.include_tasks: setup.yml
+
+- name: Configure Debian/Ubuntu for Roadrunner
   when: ansible_os_family == 'Debian'
+  ansible.builtin.include_tasks: setup-Debian.yml
 
-- ansible_builtin.include_tasks: setup-FreeBSD.yml
+- name: Configure FreeBSD for Roadrunner
   when: ansible_system == 'FreeBSD'
+  ansible.builtin.include_tasks: setup-FreeBSD.yml
 
-- ansible_builtin.include_tasks: config.yml
+- name: Handle service start (FreeBSD)
+  when: ansible_system == 'FreeBSD'
+  loop: "{{ roadrunner.config | dict2items }}"
+  loop_control:
+    loop_var: roadrunner_config
+    label: "{{ roadrunner_config.key }}"
+  ansible.builtin.include_tasks: config-FreeBSD.yml
+
+- name: Handle service start (Debian)
+  when: ansible_os_family == 'Debian'
+  loop: "{{ roadrunner.config | dict2items }}"
+  loop_control:
+    loop_var: roadrunner_config
+    label: "{{ roadrunner_config.key }}"
+  ansible.builtin.include_tasks: config-Debian.yml
