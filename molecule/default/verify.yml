@@ -61,4 +61,9 @@
         url: http://localhost:8080
         return_content: true
       register: this
-      failed_when: this is failed or "'Hello world' not in this.content"
+      retries: 3
+      delay: 3
+      until: not this.failed
+      failed_when: 
+        - this is failed
+        - "'Hello world!' not in this.content"
