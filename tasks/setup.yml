@@ -7,12 +7,12 @@
     owner: root
     mode: "0755"
 
-- name: Create the roadrunner folders
+- name: Make sure that the roadrunner folders are created
+  when: ansible_system == "FreeBSD"
   ansible.builtin.file:
     state: directory
     name: "{{ item }}"
-    owner: proserver
-    group: proserver
+    owner: root
     mode: "0755"
   loop:
     - "{{ roadrunner.prefix.bin }}"

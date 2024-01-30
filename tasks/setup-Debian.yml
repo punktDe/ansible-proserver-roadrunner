@@ -1,4 +1,23 @@
 ---
+- name: Check if the Roadrunner package v{{ roadrunner.version }} exists
+  check_mode: yes
+  ansible.builtin.apt:
+    deb: https://github.com/roadrunner-server/roadrunner/releases/download/v{{ roadrunner.version }}/roadrunner-{{ roadrunner.version }}-linux-amd64.deb
+
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Check if an older version of roadrunner is installed
+  ansible.builtin.set_fact:
+    roadrunner_apt_version: "{{ ansible_facts.packages | select('match', 'roadrunner.*') | reject('match', '.*' + roadrunner.version + '.*') }}"
+
+- name: Remove the older version of roadrunner
+  when: "roadrunner_apt_version | length > 0"
+  ansible.builtin.apt:
+    name: "{{ roadrunner_apt_version | list | first }}"
+    state: absent
+
 - name: Download and install the roadrunner v{{ roadrunner.version }} deb package
   register: roadrunner_install_binary_result
   ansible.builtin.apt:
@@ -15,3 +34,10 @@
         proserver ALL = NOPASSWD: /bin/systemctl restart roadrunner@*
     dest: "{{ roadrunner.prefix.sudoers }}/proserver-restart-roadrunner"
     validate: 'bash -c "cat /etc/sudoers %s | visudo -cf-"'
+
+- name: Stop and disable the older Roadrunner service
+  failed_when: no
+  ansible.builtin.service:
+    name: roadrunner
+    state: stopped
+    enabled: false
