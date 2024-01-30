@@ -36,6 +36,7 @@
     validate: 'bash -c "cat /etc/sudoers %s | visudo -cf-"'
 
 - name: Stop and disable the older Roadrunner service
+  failed_when: no
   ansible.builtin.service:
     name: roadrunner
     state: stopped
