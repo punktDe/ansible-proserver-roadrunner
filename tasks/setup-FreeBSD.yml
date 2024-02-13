@@ -23,7 +23,7 @@
     cmd: "{{ roadrunner.prefix.bin }}/rr -v | awk -F ' ' '{print $3}'"
 
 - name: Handle roadrunner install/update
-  when: not roadrunner_bin_exists or (roadrunner_version is defined and roadrunner_version.stdout != roadrunner.version)
+  when: not roadrunner_bin_exists.stat.exists or (roadrunner_version.stdout is defined and roadrunner_version.stdout != roadrunner.version)
   block:
     - name: Download the roadrunner v{{ roadrunner.version }} FreeBSD package
       ansible.builtin.get_url:
