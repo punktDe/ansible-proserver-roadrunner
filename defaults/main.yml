@@ -33,7 +33,7 @@ roadrunner:
           interval: 60
     metrics:
       address: localhost:2112
-  version: 2023.3.9
+  version: 2024.2.0
   arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
   prefix:
     sudoers: "{{ '/usr/local/etc/sudoers.d/' if ansible_system == 'FreeBSD' else '/etc/sudoers.d' }}"
